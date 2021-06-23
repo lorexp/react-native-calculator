@@ -21,16 +21,26 @@ const styles = StyleSheet.create({
 
 export default function App() {
   const [state, setState] = useState({
-    currentValue: 0,
+    currentValue: "0",
     operator: null,
     previousValue: null,
     history: "",
   });
 
   const handleNumber = (value) => {
+    const { currentValue } = state;
+
+    let newCurrentValue = "";
+    if (value === 0 && currentValue === "0") {
+      newCurrentValue = currentValue;
+    } else if (currentValue === "0") {
+      newCurrentValue = `${value}`;
+    } else {
+      newCurrentValue = `${currentValue}${value}`;
+    }
     return setState((prevState) => ({
       ...prevState,
-      currentValue: `${prevState.currentValue}${value}`,
+      currentValue: newCurrentValue,
     }));
   };
 
@@ -80,13 +90,13 @@ export default function App() {
         return setState((prevState) => ({
           operator: value,
           previousValue: prevState.currentValue,
-          currentValue: 0,
+          currentValue: "0",
         }));
       case "equal":
         return handleEqual();
       case "clear":
         return setState({
-          currentValue: 0,
+          currentValue: "0",
           operator: null,
           previousValue: null,
         });
@@ -98,8 +108,6 @@ export default function App() {
   const handleTap = (type, value) => {
     return calculator(type, value);
   };
-
-  console.log(state);
 
   return (
     <View style={styles.container}>
