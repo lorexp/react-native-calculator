@@ -21,20 +21,13 @@ const styles = StyleSheet.create({
 
 export default function App() {
   const [state, setState] = useState({
-    currentValue: "0",
+    currentValue: 0,
     operator: null,
     previousValue: null,
+    history: "",
   });
 
   const handleNumber = (value) => {
-    const { currentValue } = state;
-    if (currentValue === "0") {
-      return setState((prevState) => ({
-        ...prevState,
-        currentValue: `${value}`,
-      }));
-    }
-
     return setState((prevState) => ({
       ...prevState,
       currentValue: `${prevState.currentValue}${value}`,
@@ -65,8 +58,12 @@ export default function App() {
         result = previous - current;
         break;
 
-      default:
+      case "+":
         result = previous + current;
+        break;
+
+      default:
+        result = current;
     }
 
     return setState({
@@ -83,13 +80,13 @@ export default function App() {
         return setState((prevState) => ({
           operator: value,
           previousValue: prevState.currentValue,
-          currentValue: "0",
+          currentValue: 0,
         }));
       case "equal":
         return handleEqual();
       case "clear":
         return setState({
-          currentValue: "0",
+          currentValue: 0,
           operator: null,
           previousValue: null,
         });
@@ -103,6 +100,7 @@ export default function App() {
   };
 
   console.log(state);
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
