@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, StatusBar, SafeAreaView } from "react-native";
 
 import Row from "./components/Row";
 import Button from "./components/Button";
+import History from "./components/History";
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: "#202020",
     justifyContent: "flex-end",
+    flex: 1,
   },
   value: {
     color: "#fff",
@@ -19,13 +20,72 @@ const styles = StyleSheet.create({
   },
 });
 
+const initialState = {
+  currentValue: "0",
+  operator: null,
+  previousValue: null,
+  history: "",
+};
+
+const data = [
+  {
+    id: 1,
+    history: "25 + 4 = 29",
+  },
+  {
+    id: 2,
+    history: "25 + 4 = 29",
+  },
+  {
+    id: 3,
+    history: "25 + 4 = 29",
+  },
+  {
+    id: 4,
+    history: "25 + 4 = 29",
+  },
+  {
+    id: 5,
+    history: "25 + 4 = 29",
+  },
+  {
+    id: 6,
+    history: "25 + 4 = 29",
+  },
+  {
+    id: 7,
+    history: "25 + 4 = 29",
+  },
+  {
+    id: 8,
+    history: "25 + 4 = 29",
+  },
+  {
+    id: 9,
+    history: "25 + 4 = 29",
+  },
+  {
+    id: 10,
+    history: "25 + 4 = 29",
+  },
+];
+
 export default function App() {
-  const [state, setState] = useState({
-    currentValue: "0",
-    operator: null,
-    previousValue: null,
-    history: "",
-  });
+  const [state, setState] = useState(initialState);
+  const [historyData, setHistoryData] = useState([]);
+
+  const loadHistory = async () => {
+    setHistoryData(data);
+  };
+
+  const saveHistory = async (history) => {
+    const id = historyData[historyData.length - 1].id + 1;
+    const newHistory = {
+      id,
+      history,
+    };
+    setHistoryData((prevHistory) => [...prevHistory, newHistory]);
+  };
 
   const handleNumber = (value) => {
     const { currentValue } = state;
@@ -54,31 +114,40 @@ export default function App() {
     };
 
     let result = 0;
-
+    let history = "";
     switch (operator) {
       case "/":
         result = previous / current;
+        history = `${previous} ${operator} ${current} = ${result}`;
         break;
 
       case "*":
         result = previous * current;
+        history = `${previous} ${operator} ${current} = ${result}`;
         break;
 
       case "-":
         result = previous - current;
+        history = `${previous} ${operator} ${current} = ${result}`;
         break;
 
       case "+":
         result = previous + current;
+        history = `${previous} ${operator} ${current} = ${result}`;
         break;
 
       default:
         result = current;
     }
 
+    if (history !== "") {
+      saveHistory(history);
+    }
+
     return setState({
       ...resetState,
       currentValue: result,
+      history,
     });
   };
 
@@ -95,11 +164,7 @@ export default function App() {
       case "equal":
         return handleEqual();
       case "clear":
-        return setState({
-          currentValue: "0",
-          operator: null,
-          previousValue: null,
-        });
+        return setState(initialState);
       default:
         return null;
     }
@@ -109,8 +174,13 @@ export default function App() {
     return calculator(type, value);
   };
 
+  useEffect(() => {
+    loadHistory();
+  }, []);
+
   return (
     <View style={styles.container}>
+      <History history={historyData} />
       <StatusBar barStyle="light-content" />
       <SafeAreaView>
         <Text style={styles.value}>
