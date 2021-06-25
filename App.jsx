@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, StatusBar, SafeAreaView } from 'react-native';
 import * as SQLite from 'expo-sqlite';
 
+// componentes
 import Row from './components/Row';
 import Button from './components/Button';
 import History from './components/History';
 
+// criacao do sqlite
 const db = SQLite.openDatabase('db.test');
 
+// estilo dos componentes
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#202020',
@@ -23,17 +26,19 @@ const styles = StyleSheet.create({
   },
 });
 
+// valores iniciais
 const initialState = {
   currentValue: '0',
   operator: null,
   previousValue: null,
-  history: '',
 };
 
+// funcao principal
 export default function App() {
   const [state, setState] = useState(initialState);
   const [historyData, setHistoryData] = useState([]);
 
+  // funcao que busca no banco de dados os valores salvos
   const loadHistory = async () => {
     db.transaction((t) => {
       t.executeSql('select * from histories', [], (_, { rows: { _array } }) =>
@@ -42,6 +47,7 @@ export default function App() {
     });
   };
 
+  // funcao para persistir o historico no banco de dados
   const saveHistory = async (history) => {
     db.transaction((t) => {
       t.executeSql(
@@ -52,6 +58,7 @@ export default function App() {
       );
     });
 
+    // busca os novos valores e salva no estado
     loadHistory();
   };
 
