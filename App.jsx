@@ -35,6 +35,8 @@ const initialState = {
 
 // funcao principal
 export default function App() {
+  // estados utilizados na aplicacao, um para guardar os valores,
+  // e outro para salvar os dados vindos do banco;
   const [state, setState] = useState(initialState);
   const [historyData, setHistoryData] = useState([]);
 
@@ -62,6 +64,9 @@ export default function App() {
     loadHistory();
   };
 
+  // funcao para quando é digitado um novo numero,
+  // feita validacao para caso seja o primeiro numero digitado
+  // ou o primeiro numero seja zero, ai nao é salvo.
   const handleNumber = (value) => {
     const { currentValue } = state;
 
@@ -79,6 +84,7 @@ export default function App() {
     }));
   };
 
+  // funcao 
   const handleEqual = () => {
     const { currentValue, previousValue, operator } = state;
     const current = parseFloat(currentValue);
