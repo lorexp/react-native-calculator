@@ -1,25 +1,23 @@
-import React from "react";
-import { FlatList, Text, StyleSheet, SafeAreaView } from "react-native";
+import React from 'react';
+import { FlatList, Text, StyleSheet, SafeAreaView } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#123",
+    backgroundColor: '#123',
   },
   value: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 40,
-    textAlign: "right",
+    textAlign: 'right',
   },
 });
 
 export default function History({ history }) {
   return (
-    <SafeAreaView style={{ height: "50%" }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <FlatList
         keyExtractor={(item) => item.id.toString()}
         data={history}
-        invertStickyHeaders
-        extraData={history.length}
         renderItem={({ item }) => {
           return (
             <Text key={item.key} style={styles.value}>

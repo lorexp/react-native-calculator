@@ -1,99 +1,67 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, StatusBar, SafeAreaView } from "react-native";
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, StatusBar, SafeAreaView } from 'react-native';
+import * as SQLite from 'expo-sqlite';
 
-import Row from "./components/Row";
-import Button from "./components/Button";
-import History from "./components/History";
+import Row from './components/Row';
+import Button from './components/Button';
+import History from './components/History';
+
+const db = SQLite.openDatabase('db.test');
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#202020",
-    justifyContent: "flex-end",
+    backgroundColor: '#202020',
+    justifyContent: 'flex-end',
     flex: 1,
   },
   value: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 40,
-    textAlign: "right",
+    textAlign: 'right',
     marginRight: 20,
     marginBottom: 10,
   },
 });
 
 const initialState = {
-  currentValue: "0",
+  currentValue: '0',
   operator: null,
   previousValue: null,
-  history: "",
+  history: '',
 };
-
-const data = [
-  {
-    id: 1,
-    history: "25 + 4 = 29",
-  },
-  {
-    id: 2,
-    history: "25 + 4 = 29",
-  },
-  {
-    id: 3,
-    history: "25 + 4 = 29",
-  },
-  {
-    id: 4,
-    history: "25 + 4 = 29",
-  },
-  {
-    id: 5,
-    history: "25 + 4 = 29",
-  },
-  {
-    id: 6,
-    history: "25 + 4 = 29",
-  },
-  {
-    id: 7,
-    history: "25 + 4 = 29",
-  },
-  {
-    id: 8,
-    history: "25 + 4 = 29",
-  },
-  {
-    id: 9,
-    history: "25 + 4 = 29",
-  },
-  {
-    id: 10,
-    history: "25 + 4 = 29",
-  },
-];
 
 export default function App() {
   const [state, setState] = useState(initialState);
   const [historyData, setHistoryData] = useState([]);
 
   const loadHistory = async () => {
-    setHistoryData(data);
+    db.transaction((t) => {
+      t.executeSql('select * from histories', [], (_, { rows: { _array } }) =>
+        setHistoryData(_array)
+      );
+    });
   };
 
   const saveHistory = async (history) => {
-    const id = historyData[historyData.length - 1].id + 1;
-    const newHistory = {
-      id,
-      history,
-    };
-    setHistoryData((prevHistory) => [...prevHistory, newHistory]);
+    db.transaction((t) => {
+      t.executeSql(
+        'insert into histories (history) values (?);',
+        [history],
+        (_, resultSet) => console.log(resultSet),
+        (_, error) => console.log(error)
+      );
+    });
+
+    loadHistory();
   };
 
   const handleNumber = (value) => {
     const { currentValue } = state;
 
-    let newCurrentValue = "";
-    if (value === 0 && currentValue === "0") {
+    let newCurrentValue = '';
+    if (value === 0 && currentValue === '0') {
       newCurrentValue = currentValue;
-    } else if (currentValue === "0") {
+    } else if (currentValue === '0') {
       newCurrentValue = `${value}`;
     } else {
       newCurrentValue = `${currentValue}${value}`;
@@ -114,24 +82,24 @@ export default function App() {
     };
 
     let result = 0;
-    let history = "";
+    let history = '';
     switch (operator) {
-      case "/":
+      case '/':
         result = previous / current;
         history = `${previous} ${operator} ${current} = ${result}`;
         break;
 
-      case "*":
+      case '*':
         result = previous * current;
         history = `${previous} ${operator} ${current} = ${result}`;
         break;
 
-      case "-":
+      case '-':
         result = previous - current;
         history = `${previous} ${operator} ${current} = ${result}`;
         break;
 
-      case "+":
+      case '+':
         result = previous + current;
         history = `${previous} ${operator} ${current} = ${result}`;
         break;
@@ -140,7 +108,7 @@ export default function App() {
         result = current;
     }
 
-    if (history !== "") {
+    if (history !== '') {
       saveHistory(history);
     }
 
@@ -153,17 +121,17 @@ export default function App() {
 
   const calculator = (type, value) => {
     switch (type) {
-      case "number":
+      case 'number':
         return handleNumber(value);
-      case "operator":
+      case 'operator':
         return setState((prevState) => ({
           operator: value,
           previousValue: prevState.currentValue,
-          currentValue: "0",
+          currentValue: '0',
         }));
-      case "equal":
+      case 'equal':
         return handleEqual();
-      case "clear":
+      case 'clear':
         return setState(initialState);
       default:
         return null;
@@ -175,67 +143,76 @@ export default function App() {
   };
 
   useEffect(() => {
+    db.transaction(
+      (t) => {
+        t.executeSql(
+          'create table if not exists histories (id integer primary key autoincrement, history text);'
+        );
+      },
+      (error) => console.log('error', error),
+      () => console.log('criado com sucesso')
+    );
     loadHistory();
   }, []);
 
   return (
     <View style={styles.container}>
       <History history={historyData} />
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle='light-content' />
       <SafeAreaView>
         <Text style={styles.value}>
           {parseFloat(state.currentValue).toLocaleString()}
         </Text>
         <Row />
         <Row>
-          <Button text="7" onPress={() => handleTap("number", 7)} />
-          <Button text="8" onPress={() => handleTap("number", 8)} />
-          <Button text="9" onPress={() => handleTap("number", 9)} />
+          <Button text='7' onPress={() => handleTap('number', 7)} />
+          <Button text='8' onPress={() => handleTap('number', 8)} />
+          <Button text='9' onPress={() => handleTap('number', 9)} />
           <Button
-            text="/"
-            theme="accent"
-            onPress={() => handleTap("operator", "/")}
+            text='/'
+            theme='accent'
+            onPress={() => handleTap('operator', '/')}
           />
         </Row>
 
         <Row>
-          <Button text="4" onPress={() => handleTap("number", 4)} />
-          <Button text="5" onPress={() => handleTap("number", 5)} />
-          <Button text="6" onPress={() => handleTap("number", 6)} />
+          <Button text='4' onPress={() => handleTap('number', 4)} />
+          <Button text='5' onPress={() => handleTap('number', 5)} />
+          <Button text='6' onPress={() => handleTap('number', 6)} />
           <Button
-            text="x"
-            theme="accent"
-            onPress={() => handleTap("operator", "*")}
+            text='x'
+            theme='accent'
+            onPress={() => handleTap('operator', '*')}
           />
         </Row>
 
         <Row>
-          <Button text="1" onPress={() => handleTap("number", 1)} />
-          <Button text="2" onPress={() => handleTap("number", 2)} />
-          <Button text="3" onPress={() => handleTap("number", 3)} />
+          <Button text='1' onPress={() => handleTap('number', 1)} />
+          <Button text='2' onPress={() => handleTap('number', 2)} />
+          <Button text='3' onPress={() => handleTap('number', 3)} />
           <Button
-            text="-"
-            theme="accent"
-            onPress={() => handleTap("operator", "-")}
+            text='-'
+            theme='accent'
+            onPress={() => handleTap('operator', '-')}
           />
         </Row>
 
         <Row>
           <Button
-            text="0"
-            size="accent"
-            onPress={() => handleTap("number", 0)}
+            text='0'
+            size='accent'
+            onPress={() => handleTap('number', 0)}
           />
           <Button
-            text="C"
-            theme="secondary"
-            onPress={() => handleTap("clear")}
+            text='C'
+            theme='secondary'
+            onPress={() => handleTap('clear')}
           />
-          <Button text="=" theme="accent" onPress={() => handleTap("equal")} />
+          <Button text='=' theme='accent' onPress={() => handleTap('equal')} />
           <Button
-            text="+"
-            theme="accent"
-            onPress={() => handleTap("operator", "+")}
+            text='+'
+            theme='accent'
+            onPress={() => handleTap('operator', '+')}
           />
         </Row>
       </SafeAreaView>
