@@ -84,7 +84,7 @@ export default function App() {
     }));
   };
 
-  // funcao 
+  // funcao para validar quando pressionado o botao =
   const handleEqual = () => {
     const { currentValue, previousValue, operator } = state;
     const current = parseFloat(currentValue);
@@ -96,6 +96,7 @@ export default function App() {
 
     let result = 0;
     let history = '';
+    // validando o operador
     switch (operator) {
       case '/':
         result = previous / current;
@@ -121,6 +122,7 @@ export default function App() {
         result = current;
     }
 
+    // caso tenhamos historio, salvamos no banco de dados
     if (history !== '') {
       saveHistory(history);
     }
@@ -132,6 +134,7 @@ export default function App() {
     });
   };
 
+  // funcao que valida o dado digitado, entre operadores e numeros
   const calculator = (type, value) => {
     switch (type) {
       case 'number':
