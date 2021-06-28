@@ -18,5 +18,13 @@
     "eslint": "^7.4.0",
     "eslint-config-handlebarlabs": "^0.0.6"
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "name": "Your App Name",
+    "version": "1.0.0",
+    "android": {
+      "package": "com.lorexp.calculator",
+      "versionCode": 1
+    }
+  }
 }
